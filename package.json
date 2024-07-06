@@ -19,6 +19,8 @@
 		"prisma:generate": "prisma generate"
 	},
 	"dependencies": {
+		"@auth/prisma-adapter": "^2.4.1",
+		"@auth/sveltekit": "^1.4.1",
 		"@prisma/client": "^5.16.1",
 		"ably": "^2.2.1",
 		"html-minifier-terser": "^7.2.0"

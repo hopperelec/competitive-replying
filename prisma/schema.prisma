@@ -8,3 +8,52 @@ datasource db {
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("TEST_DATABASE_URL")
 }
+
+model User {
+  id       Int       @id @default(autoincrement()) @db.UnsignedInt
+  name          String?
+  username      String?         @unique
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  Session       Session[]
+  Account       Account?
+}
+
+model Account {
+  id       Int       @id @default(autoincrement()) @db.UnsignedInt
+  userId                   Int  @db.UnsignedInt @unique
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User?   @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id       Int       @id @default(autoincrement()) @db.UnsignedInt
+  sessionToken String   @unique
+  userId       Int  @db.UnsignedInt
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
