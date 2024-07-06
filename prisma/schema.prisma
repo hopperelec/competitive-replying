@@ -10,10 +10,10 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement()) @db.UnsignedInt
+  id            Int       @id @default(autoincrement()) @db.UnsignedInt
   name          String?
-  username      String?         @unique
-  email         String?         @unique
+  username      String?   @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
   Session       Session[]
@@ -21,8 +21,8 @@ model User {
 }
 
 model Account {
-  id       Int       @id @default(autoincrement()) @db.UnsignedInt
-  userId                   Int  @db.UnsignedInt @unique
+  id                       Int     @id @default(autoincrement()) @db.UnsignedInt
+  userId                   Int     @unique @db.UnsignedInt
   type                     String
   provider                 String
   providerAccountId        String
@@ -41,9 +41,9 @@ model Account {
 }
 
 model Session {
-  id       Int       @id @default(autoincrement()) @db.UnsignedInt
+  id           Int      @id @default(autoincrement()) @db.UnsignedInt
   sessionToken String   @unique
-  userId       Int  @db.UnsignedInt
+  userId       Int      @db.UnsignedInt
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id])
 
