@@ -7,7 +7,7 @@ export const GET = async () => {
 	return json(
 		await ablyServer.auth.createTokenRequest({
 			capability: {
-				game: ["subscribe"],
+				prompts: ["subscribe"],
 			},
 		}),
 	);
