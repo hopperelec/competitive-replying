@@ -10,7 +10,7 @@ For each prompt, players can choose to either write a reply ("repliers") or rate
 Until at least two replies to a prompt have been voted on,
 nobody is able to see who wrote each reply nor how many upvotes/downvotes each reply has.
 
-After those 30 seconds are up, players stop being able to write and rate replies, and the winning reply is determined.
+Thirty seconds after a prompt has received its second reply, players stop being able to write and rate replies, and the winning reply is determined.
 
 Each reply is scored by subtracting the number of downvotes from the number of upvotes.
 The winning reply for each prompt is that with the highest score.

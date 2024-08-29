@@ -18,6 +18,10 @@ model User {
   image         String?
   Session       Session[]
   Account       Account?
+
+  prompts Prompt[]
+  replies Reply[]
+  voters Voter[]
 }
 
 model Account {
@@ -56,4 +60,55 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Prompt {
+  id Int      @id @default(autoincrement()) @db.UnsignedInt
+
+  prompterId Int     @db.UnsignedInt
+  prompter   User    @relation(fields: [prompterId], references: [id])
+  content    String  @unique
+  locked     Boolean @default(false)
+
+  replies Reply[]
+  voters  Voter[]
+}
+
+model Reply {
+  replierId Int    @db.UnsignedInt
+  replier   User   @relation(fields: [replierId], references: [id])
+  promptId  Int    @db.UnsignedInt
+  prompt    Prompt @relation(fields: [promptId], references: [id])
+
+  content   String
+  createdAt DateTime @default(now())
+
+  votes Vote[]
+
+  @@id([replierId, promptId])
+}
+
+/// A user who is able to see replies to a prompt and vote on them.
+/// This is necessary to prevent people from looking at replies before writing their own.
+model Voter {
+  userId   Int    @db.UnsignedInt
+  user     User   @relation(fields: [userId], references: [id])
+  promptId Int    @db.UnsignedInt
+  prompt   Prompt @relation(fields: [promptId], references: [id])
+
+  votes Vote[]
+
+  @@id([userId, promptId])
+}
+
+model Vote {
+  userId    Int   @db.UnsignedInt
+  promptId  Int   @db.UnsignedInt
+  replierId Int   @db.UnsignedInt
+  voter     Voter @relation(fields: [userId, promptId], references: [userId, promptId])
+  reply     Reply @relation(fields: [promptId, replierId], references: [promptId, replierId])
+
+  vote Boolean
+
+  @@id([userId, promptId, replierId])
 }
