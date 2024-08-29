@@ -8,25 +8,25 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	if (!session) error(401, "Unauthorized");
 	if (!session.user?.id)
 		error(500, "Your session is not associated with a valid user");
-    const content = await request.text();
-    let res: {
-        id: number,
-        prompter: { image: string | null }
-    };
+	const content = await request.text();
+	let res: {
+		id: number;
+		prompter: { image: string | null };
+	};
 	try {
 		res = await prisma.prompt.create({
 			data: {
 				prompter: { connect: { id: +session.user.id } },
 				content,
 			},
-            select: {
-                id: true,
-                prompter: {
-                    select: {
-                        image: true,
-                    }
-                }
-            }
+			select: {
+				id: true,
+				prompter: {
+					select: {
+						image: true,
+					},
+				},
+			},
 		});
 	} catch (e) {
 		if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -36,13 +36,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		console.error(e);
 		error(500, "An unexpected error occurred while submitting your prompt");
 	}
-    ablyServer.channels.get("prompts").publish("new-prompt", {
-        id: res.id,
-        content,
-        prompter: {
-            name: session.user.name,
-            image: res.prompter.image,
-        }
-    }).then();
+	ablyServer.channels
+		.get("prompts")
+		.publish("new-prompt", {
+			id: res.id,
+			content,
+			prompter: {
+				name: session.user.name,
+				image: res.prompter.image,
+			},
+		})
+		.then();
 	return new Response();
 };

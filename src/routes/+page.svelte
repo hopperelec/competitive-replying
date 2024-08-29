@@ -1,5 +1,5 @@
 <script lang="ts">
-import {getChannel} from "$lib/ably-client";
+import { getChannel } from "$lib/ably-client";
 import LoginPrompt from "$lib/components/LoginPrompt.svelte";
 import SubmitPrompt from "$lib/components/SubmitPrompt.svelte";
 import UserLabel from "$lib/components/UserLabel.svelte";
@@ -9,17 +9,17 @@ export let data: PageData;
 
 const promptsMessage = getChannel("prompts");
 $: if ($promptsMessage && $promptsMessage.name === "new-prompt") {
-    data.prompts = [
-        ...data.prompts,
-        {
-            ...$promptsMessage.data,
-            locked: false,
-        }
-    ];
+	data.prompts = [
+		...data.prompts,
+		{
+			...$promptsMessage.data,
+			locked: false,
+		},
+	];
 }
 
 let i = data.prompts.length;
-$: currentlyViewedPrompt = data.prompts[i-1];
+$: currentlyViewedPrompt = data.prompts[i - 1];
 </script>
 
 <div id="page-container">
@@ -56,6 +56,7 @@ $: currentlyViewedPrompt = data.prompts[i-1];
   display: flex;
   align-items: center;
   margin: .5em;
+
   & > p {
     margin: 0 .5em;
   }
