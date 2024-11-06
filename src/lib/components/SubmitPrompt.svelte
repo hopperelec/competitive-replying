@@ -3,7 +3,7 @@ let prompt: string;
 
 async function onKeyUp(event: KeyboardEvent) {
 	if (event.key === "Enter") {
-		const res = await fetch("/submit-prompt", {
+		const res = await fetch("/prompts", {
 			method: "POST",
 			body: prompt,
 		});

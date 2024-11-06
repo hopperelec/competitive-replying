@@ -1,7 +1,8 @@
 import ablyServer from "$lib/server/ably-server";
 import prisma from "$lib/server/prisma";
 import { Prisma } from "@prisma/client";
-import { type RequestHandler, error } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
+import type { RequestHandler } from "./$types";
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const session = await locals.auth();
@@ -29,10 +30,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			},
 		});
 	} catch (e) {
-		if (e instanceof Prisma.PrismaClientKnownRequestError) {
-			if (e.code === "P2002")
-				error(400, "This prompt has already been submitted");
-		}
+		if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002")
+			error(400, "This prompt has already been submitted");
 		console.error(e);
 		error(500, "An unexpected error occurred while submitting your prompt");
 	}
