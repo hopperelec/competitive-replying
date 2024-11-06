@@ -21,7 +21,7 @@ export const GET = async ({ locals }) => {
 			},
 			select: { id: true },
 		});
-        // TODO: Figure out how to allow users to subscribe to prompts they've received access to after authenticating with Ably
+		// TODO: Figure out how to allow users to subscribe to prompts they've received access to after authenticating with Ably
 		for (const prompt of prompts) {
 			capability[`prompts:${prompt.id}:replies`] = ["subscribe"];
 		}
