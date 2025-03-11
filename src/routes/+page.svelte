@@ -10,8 +10,9 @@ import type {Unsubscriber} from "svelte/store";
 
 let { data } = $props();
 
-let i = $state(data.prompts.length);
-let currentlyViewedPrompt = $derived(data.prompts[i - 1]);
+let prompts = $state(data.prompts);
+let i = $state(prompts.length);
+let currentlyViewedPrompt = $derived(prompts[i - 1]);
 let repliesUnsubscribe: Unsubscriber | undefined;
 async function setCurrentlyViewedPrompt(newI: number) {
   repliesUnsubscribe?.();
@@ -26,8 +27,10 @@ async function setCurrentlyViewedPrompt(newI: number) {
     repliesUnsubscribe = getChannel(`prompts:${currentlyViewedPrompt.id}:replies`)
               ?.subscribe(repliesMessage => {
                 if (repliesMessage?.name === "new-reply") {
-                  currentlyViewedPrompt.replies =
-                          [...(currentlyViewedPrompt.replies || []), repliesMessage.data]
+                  if (currentlyViewedPrompt.replies === undefined)
+                    currentlyViewedPrompt.replies = [repliesMessage.data];
+                  else
+                    currentlyViewedPrompt.replies.push(repliesMessage.data);
                 }
               });
   } else alert(json.message);
@@ -36,7 +39,7 @@ async function setCurrentlyViewedPrompt(newI: number) {
 getChannel("prompts")?.subscribe(
         (promptsMessage: ably.InboundMessage) => {
           if (promptsMessage && promptsMessage.name === "new-prompt") {
-            data.prompts.push({
+            prompts.push({
               ...promptsMessage.data,
               locked: false,
             });
@@ -52,13 +55,13 @@ getChannel("prompts")?.subscribe(
     <LoginPrompt prompt="submit prompts"/>
   {/if}
 
-  {#if data.prompts.length === 0}
+  {#if prompts.length === 0}
     <p>No prompts have been submitted yet.</p>
   {:else}
     <div id="buttons">
       <button onclick={() => setCurrentlyViewedPrompt(i-1)} disabled={i === 1}>Last Prompt</button>
-      <p>{i} / {data.prompts.length}</p>
-      <button onclick={() => setCurrentlyViewedPrompt(i+1)} disabled={i === data.prompts.length}>Next Prompt</button>
+      <p>{i} / {prompts.length}</p>
+      <button onclick={() => setCurrentlyViewedPrompt(i+1)} disabled={i === prompts.length}>Next Prompt</button>
     </div>
     <div id="prompt">
       <Submission content={currentlyViewedPrompt.content} user={currentlyViewedPrompt.prompter} session={data.session}/>
