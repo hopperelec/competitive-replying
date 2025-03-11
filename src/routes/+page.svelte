@@ -6,52 +6,43 @@ import Submission from "$lib/components/Submission.svelte";
 import SubmitPrompt from "$lib/components/SubmitPrompt.svelte";
 import SubmitReply from "$lib/components/SubmitReply.svelte";
 import type ably from "ably";
-import type { Readable } from "svelte/store";
-import type { PageData } from "./$types";
+import type {Unsubscriber} from "svelte/store";
 
-export let data: PageData;
+let { data } = $props();
 
-let i = data.prompts.length;
-let currentlyViewedPrompt = data.prompts[i - 1];
+let i = $state(data.prompts.length);
+let currentlyViewedPrompt = $derived(data.prompts[i - 1]);
+let repliesUnsubscribe: Unsubscriber | undefined;
 async function setCurrentlyViewedPrompt(newI: number) {
-	i = newI;
-	currentlyViewedPrompt = data.prompts[i - 1];
-	repliesMessage = undefined;
-	if (canSeeRepliesFor(data.session, currentlyViewedPrompt)) {
-		// Update replies
-		const res = await fetch(`/prompts/${currentlyViewedPrompt.id}/replies`);
-		const json = await res.json();
-		if (res.ok) {
-			currentlyViewedPrompt.replies = json;
-			repliesMessage = getChannel(
-				`prompts:${currentlyViewedPrompt.id}:replies`,
-			);
-		} else alert(json.message);
-	}
+  repliesUnsubscribe?.();
+  i = newI;
+  if (!canSeeRepliesFor(data.session, currentlyViewedPrompt)) return;
+
+  // Update replies
+  const res = await fetch(`/prompts/${currentlyViewedPrompt.id}/replies`);
+  const json = await res.json();
+  if (res.ok) {
+    currentlyViewedPrompt.replies = json;
+    repliesUnsubscribe = getChannel(`prompts:${currentlyViewedPrompt.id}:replies`)
+              ?.subscribe(repliesMessage => {
+                if (repliesMessage?.name === "new-reply") {
+                  currentlyViewedPrompt.replies =
+                          [...(currentlyViewedPrompt.replies || []), repliesMessage.data]
+                }
+              });
+  } else alert(json.message);
 }
 
-const promptsMessage = getChannel("prompts");
-$: if ($promptsMessage && $promptsMessage.name === "new-prompt") {
-	data.prompts = [
-		...data.prompts,
-		{
-			...$promptsMessage.data,
-			locked: false,
-		},
-	];
-}
-
-// This isn't set reactively such that I can ensure the current replies are fetched before new ones are added
-let repliesMessage: undefined | Readable<undefined | ably.InboundMessage>;
-$: if (
-	repliesMessage &&
-	$repliesMessage &&
-	$repliesMessage.name === "new-reply"
-) {
-	currentlyViewedPrompt.replies = currentlyViewedPrompt.replies
-		? [...currentlyViewedPrompt.replies, $repliesMessage.data]
-		: [$repliesMessage.data];
-}
+getChannel("prompts")?.subscribe(
+        (promptsMessage: ably.InboundMessage) => {
+          if (promptsMessage && promptsMessage.name === "new-prompt") {
+            data.prompts.push({
+              ...promptsMessage.data,
+              locked: false,
+            });
+          }
+        }
+);
 </script>
 
 <div id="page-container">
@@ -65,9 +56,9 @@ $: if (
     <p>No prompts have been submitted yet.</p>
   {:else}
     <div id="buttons">
-      <button on:click={() => setCurrentlyViewedPrompt(i-1)} disabled={i === 1}>Last Prompt</button>
+      <button onclick={() => setCurrentlyViewedPrompt(i-1)} disabled={i === 1}>Last Prompt</button>
       <p>{i} / {data.prompts.length}</p>
-      <button on:click={() => setCurrentlyViewedPrompt(i+1)} disabled={i === data.prompts.length}>Next Prompt</button>
+      <button onclick={() => setCurrentlyViewedPrompt(i+1)} disabled={i === data.prompts.length}>Next Prompt</button>
     </div>
     <div id="prompt">
       <Submission content={currentlyViewedPrompt.content} user={currentlyViewedPrompt.prompter} session={data.session}/>

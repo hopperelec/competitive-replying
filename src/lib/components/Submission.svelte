@@ -2,9 +2,11 @@
 import UserLabel from "$lib/components/UserLabel.svelte";
 import type { Session } from "@auth/sveltekit";
 
-export let content: string;
-export let user: { name: string | null; image: string | null };
-export let session: null | Session;
+let { content, user, session }: {
+    content: string;
+    user: { name: string | null; image: string | null };
+    session: null | Session;
+} = $props();
 </script>
 
 <p id="content">{content}</p>

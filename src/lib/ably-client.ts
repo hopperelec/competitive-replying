@@ -8,7 +8,7 @@ export const ablyClientConnection =
 const messages: { [key: string]: Readable<ably.InboundMessage> } = {};
 
 export function getChannel(name: string) {
-	if (!ablyClientConnection) return readable(undefined);
+	if (!ablyClientConnection) return;
 	if (name in messages) return messages[name];
 	const ablyChannel = ablyClientConnection.channels.get(name);
 	const message = readable<ably.InboundMessage>(undefined, (set) => {

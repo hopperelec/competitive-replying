@@ -1,10 +1,11 @@
 <script lang="ts">
 import { signIn } from "@auth/sveltekit/client";
-export let prompt: string;
+
+let { prompt }: { prompt: string } = $props();
 </script>
 
 <p>
-  <button on:click={() => signIn("discord")}>Login with Discord</button>
+  <button onclick={() => signIn("discord")}>Login with Discord</button>
   <span>to {prompt}</span>
 </p>
 

@@ -1,8 +1,10 @@
 <script lang="ts">
 import DefaultPFP from "$lib/media/default_pfp.svg";
 
-export let user: { name: string | null; image: string | null };
-$: displayName = user.name ?? "User";
+let { user }: {
+  user: { name: string | null; image: string | null };
+} = $props();
+let displayName = $derived(user.name ?? "User");
 </script>
 
 <div>

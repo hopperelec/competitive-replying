@@ -1,8 +1,8 @@
 <script lang="ts">
-export let promptId: number;
+let { promptId }: { promptId: number } = $props();
 
-let reply: string;
-let locked = false;
+let reply: string = $state("");
+let locked = $state(false);
 
 async function onKeyUp(event: KeyboardEvent) {
 	if (event.key === "Enter") {
@@ -19,4 +19,4 @@ async function onKeyUp(event: KeyboardEvent) {
 }
 </script>
 
-<input type="text" placeholder="Submit a reply" on:keyup={onKeyUp} bind:value={reply} disabled={locked} />
+<input type="text" placeholder="Submit a reply" onkeyup={onKeyUp} bind:value={reply} disabled={locked} />

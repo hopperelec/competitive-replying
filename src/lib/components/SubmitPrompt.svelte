@@ -1,5 +1,5 @@
 <script lang="ts">
-let prompt: string;
+let prompt: string = $state("");
 
 async function onKeyUp(event: KeyboardEvent) {
 	if (event.key === "Enter") {
@@ -13,7 +13,7 @@ async function onKeyUp(event: KeyboardEvent) {
 }
 </script>
 
-<input type="text" placeholder="Submit a prompt" on:keyup={onKeyUp} bind:value={prompt} />
+<input type="text" placeholder="Submit a prompt" onkeyup={onKeyUp} bind:value={prompt} />
 
 <style>
 input {
