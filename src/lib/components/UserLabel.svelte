@@ -7,13 +7,13 @@ let { user }: {
 let displayName = $derived(user.name ?? "User");
 </script>
 
-<div>
+<span id="container">
   <img src={user.image || DefaultPFP} alt={`${displayName}'s profile picture`}/>
   <span>{displayName}</span>
-</div>
+</span>
 
 <style>
-div {
+#container {
   display: inline-flex;
   align-items: center;
 }
